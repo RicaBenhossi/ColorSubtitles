@@ -1,30 +1,30 @@
 import datetime as dt
-import chardet
 
 
-def get_file_encoding(src_file_path):
-    """
-    Get the encoding type of a file
-    :param src_file_path: file path
-    :return: str - file encoding type
-    """
+def get_subtitles_from_file(file_path: str, file_encoding: str) -> list:
+    with open(file_path, 'r', encoding=file_encoding) as original_srt_file:
+        subtitles = list(original_srt_file.read().split('\n\n'))
 
-    with open(src_file_path) as src_file:
-        return src_file.encoding
+    return subtitles
 
 
-# file = open("The.Rookie.srt", "r", encoding="windows 1252")
-file_name = 'the.neighborhood.s03e05.720p.web.h264-ggwp.srt'
+file_name = 'Magnum.P.I.2018.S03E06.720p.HEVC.x265-MeGusta.srt'
 file_path = 'resources/'
-file_encoding = get_file_encoding(file_path+file_name)
-# file_encoding = "UTF8"
-# start_time = dt.datetime.now()
+start_time = dt.datetime.now()
 
-with open(file_path + file_name, "r", encoding=file_encoding) as original_srt_file:
-    new_list = list(original_srt_file.read().split('\n\n'))
+try:
+    subtitle = get_subtitles_from_file(file_path + file_name, 'UTF8')
+except UnicodeDecodeError:
+    print('Could not open file using UTF-8 encoding. Trying with encoding windows 1252.')
+    try:
+        subtitle = get_subtitles_from_file(file_path + file_name, 'windows 1252')
+    except UnicodeDecodeError:
+        print('Error on openning file using windows 1252 encoding.')
+        print('Check if the encoding of the file is UTF-8 or Windows 1252.')
+        exit()
 
-with open(file_name, "w+") as new_srt_file:
-    for subtitle_line in new_list:
+with open(file_name, 'w+') as new_srt_file:
+    for subtitle_line in subtitle:
         line = list(subtitle_line.splitlines())
         for i in range(0, len(line)):
             if i < 2:
@@ -36,3 +36,6 @@ with open(file_name, "w+") as new_srt_file:
 
             new_srt_file.write('\n')
         new_srt_file.write('\n')
+
+end_time = dt.datetime.now();
+print(end_time - start_time)
