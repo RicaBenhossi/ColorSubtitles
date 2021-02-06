@@ -1,4 +1,5 @@
 import datetime as dt
+import os
 
 
 def get_subtitles_from_file(file_path: str, file_encoding: str) -> list:
@@ -8,34 +9,40 @@ def get_subtitles_from_file(file_path: str, file_encoding: str) -> list:
     return subtitles
 
 
-file_name = 'Magnum.P.I.2018.S03E06.720p.HEVC.x265-MeGusta.srt'
-file_path = 'resources/'
 start_time = dt.datetime.now()
-
-try:
-    subtitle = get_subtitles_from_file(file_path + file_name, 'UTF8')
-except UnicodeDecodeError:
-    print('Could not open file using UTF-8 encoding. Trying with encoding windows 1252.')
+file_path = 'resources'
+file_list = os.listdir(file_path)
+file_error_list = list()
+print(f'There is {len(file_list)} to process...')
+print()
+count_file_process = 0
+for file_name in file_list:
+    print(f'Processing file {count_file_process + 1} from {len(file_list)}. File name: {file_list[count_file_process]}')
+    full_file_name = file_path + '/' + file_name
     try:
-        subtitle = get_subtitles_from_file(file_path + file_name, 'windows 1252')
+        subtitle = get_subtitles_from_file(full_file_name, 'UTF8')
     except UnicodeDecodeError:
-        print('Error on openning file using windows 1252 encoding.')
-        print('Check if the encoding of the file is UTF-8 or Windows 1252.')
-        exit()
+        try:
+            subtitle = get_subtitles_from_file(full_file_name, 'windows 1252')
+        except UnicodeDecodeError:
+            file_error_list.add(file_name)
 
-with open(file_name, 'w+') as new_srt_file:
-    for subtitle_line in subtitle:
-        line = list(subtitle_line.splitlines())
-        for i in range(0, len(line)):
-            if i < 2:
-                new_srt_file.write(line[i])
-            else:
-                new_srt_file.write("<font color=#ffff00>")
-                new_srt_file.write(line[i])
-                new_srt_file.write("</font>")
-
+    with open(file_name, 'w+') as new_srt_file:
+        # FIXME: Solve unbound subtitle list
+        for subtitle_line in subtitle:
+            line = list(subtitle_line.splitlines())
+            for i in range(0, len(line)):
+                if i < 2:
+                    new_srt_file.write(line[i])
+                else:
+                    new_srt_file.write("<font color=#ffff00>")
+                    new_srt_file.write(line[i])
+                    new_srt_file.write("</font>")
+                new_srt_file.write('\n')
             new_srt_file.write('\n')
-        new_srt_file.write('\n')
+    count_file_process += 1
 
-end_time = dt.datetime.now();
+end_time = dt.datetime.now()
+if file_error_list:
+    file_error_list.insert(0, 'Color Subtitles could not open some files using encoding UTF-8 and Windows 1252.')
 print(end_time - start_time)
