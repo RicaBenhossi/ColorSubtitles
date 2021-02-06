@@ -9,9 +9,17 @@ def get_subtitles_from_file(file_path: str, file_encoding: str) -> list:
     return subtitles
 
 
+def remove_not_srt_file(file_list: list):
+    for file_name in file_list:
+        if file_name[-3:] != 'srt':
+            file_list.remove(file_name)
+
+    return file_list
+
+
 start_time = dt.datetime.now()
 file_path = 'resources'
-file_list = os.listdir(file_path)
+file_list = remove_not_srt_file(os.listdir(file_path))
 file_error_list = list()
 print(f'There is {len(file_list)} to process...')
 print()
