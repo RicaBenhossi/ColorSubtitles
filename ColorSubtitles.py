@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 import datetime as dt
 import os
 
@@ -30,9 +32,10 @@ file_list = remove_not_srt_file(os.listdir(file_path))
 file_error_list = list()
 print(f'There is {len(file_list)} files to process...')
 print()
-count_file_process = 0
+processed_file_count = 0
 for file_name in file_list:
-    print(f'Processing file {count_file_process + 1} from {len(file_list)}. File name: {file_list[count_file_process]}')
+    processed_file_count += 1
+    print(f'Processing file {processed_file_count} from {len(file_list)}. File name: {file_name}')
     full_file_name = file_path + '/' + file_name
     try:
         subtitle = get_subtitles_from_file(full_file_name, 'UTF8')
@@ -43,7 +46,6 @@ for file_name in file_list:
             file_error_list.add(file_name)
 
     with open(file_name, 'w+') as new_srt_file:
-        # FIXME: Solve unbound subtitle list
         for subtitle_line in subtitle:
             line = list(subtitle_line.splitlines())
             for i in range(0, len(line)):
@@ -55,8 +57,8 @@ for file_name in file_list:
                     new_srt_file.write("</font>")
                 new_srt_file.write('\n')
             new_srt_file.write('\n')
-    count_file_process += 1
+    processed_file_count += 1
 
 end_time = dt.datetime.now()
 show_error_open_file(file_error_list)
-print(end_time - start_time)
+print(f'Processed in: {(end_time - start_time)}')
