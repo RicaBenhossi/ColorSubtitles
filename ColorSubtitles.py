@@ -30,7 +30,7 @@ start_time = dt.datetime.now()
 file_path = 'resources'
 file_list = remove_not_srt_file(os.listdir(file_path))
 file_error_list = list()
-print(f'There is {len(file_list)} files to process...')
+print(f'There is {len(file_list)} file(s) to process...')
 print()
 processed_file_count = 0
 for file_name in file_list:
